@@ -56,7 +56,7 @@ unless defined?(TEST)
     end
     open(freec_app_pid_file, "w") {|f| f.write(Process.pid) }
 
-    server = Listener.new('0.0.0.0', @@config['listen_port'].to_i, freec_app_class_name)
+    server = Listener.new('127.0.0.1', @@config['listen_port'].to_i, freec_app_class_name)
     server.audit = true
     server.start
     puts "Listening on port #{@@config['listen_port']}"
