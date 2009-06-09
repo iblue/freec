@@ -44,16 +44,21 @@ def freec_app_configuration_file
   "#{ROOT}/config/config.yml"
 end
 
+
 unless defined?(TEST)
+  ROOT = File.expand_path(File.dirname($0))
+  ENVIRONMENT = ARGV[0] == '-d' ? 'production' : 'development'
+  create_freec_app_log_dir
+  load_freec_app_config
+  
+  # Daemonize as soon as possible to make rails inclusion and other stuff work
+  if ARGV[0] == '-d'
+    puts 'Daemonizing...'
+    daemonize(freec_app_log_file)
+    Dir.chdir(ROOT)
+  end
+
   at_exit do
-    ROOT = File.expand_path(File.dirname($0))
-    ENVIRONMENT = ARGV[0] == '-d' ? 'production' : 'development'
-    create_freec_app_log_dir
-    load_freec_app_config
-    if ARGV[0] == '-d'
-      puts 'Daemonizing...'
-      daemonize(freec_app_log_file)
-    end
     open(freec_app_pid_file, "w") {|f| f.write(Process.pid) }
 
     server = Listener.new('127.0.0.1', @@config['listen_port'].to_i, freec_app_class_name)
